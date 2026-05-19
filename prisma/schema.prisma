@@ -1,0 +1,40 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+model User {
+  id String @id @default(uuid())
+
+  name     String
+  email    String @unique
+  password String
+  balance  Float  @default(100.0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sentTransactions     Transaction[] @relation("SentTransactions")
+  receivedTransactions Transaction[] @relation("ReceivedTransactions")
+}
+
+model Transaction {
+  id String @id @default(uuid())
+
+  value  Float
+  status String
+
+  payerId    String
+  receiverId String
+
+  payer User @relation("SentTransactions", fields: [payerId], references: [id])
+
+  receiver User @relation("ReceivedTransactions", fields: [receiverId], references: [id])
+
+  createdAt DateTime @default(now())
+}
